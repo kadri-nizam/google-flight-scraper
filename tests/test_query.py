@@ -2,14 +2,14 @@ import datetime
 
 import pytest
 
-from google_flight_scraper.flight import GoogleFlightQuery
+from google_flight_scraper.flight import FlightDetail
 
 _TODAY_DATE = datetime.datetime.now().strftime("%Y-%m-%d")
 
 
 def test_invalid_departure_date_format():
     with pytest.raises(ValueError, match="Invalid departure date format."):
-        GoogleFlightQuery(
+        FlightDetail(
             origin="SFO",
             destination="LAX",
             departure_date="2023-15-40",
@@ -20,7 +20,7 @@ def test_invalid_departure_date_format():
 
 def test_invalid_return_date_format():
     with pytest.raises(ValueError, match="Invalid return date format."):
-        GoogleFlightQuery(
+        FlightDetail(
             origin="SFO",
             destination="LAX",
             departure_date=_TODAY_DATE,
@@ -32,7 +32,7 @@ def test_invalid_return_date_format():
 
 def test_departure_date_in_the_past():
     with pytest.raises(ValueError, match="Departure date is in the past."):
-        GoogleFlightQuery(
+        FlightDetail(
             origin="SFO",
             destination="LAX",
             departure_date="2020-10-02",
@@ -43,7 +43,7 @@ def test_departure_date_in_the_past():
 
 def test_return_date_in_the_past():
     with pytest.raises(ValueError, match="Return date is before departure date."):
-        GoogleFlightQuery(
+        FlightDetail(
             origin="SFO",
             destination="LAX",
             departure_date=_TODAY_DATE,
@@ -57,7 +57,7 @@ def test_invalid_airport_code():
     with pytest.raises(
         ValueError, match="Both origin and destination must be IATA airport codes."
     ):
-        GoogleFlightQuery(
+        FlightDetail(
             origin="NONE",
             destination="LAX",
             departure_date=_TODAY_DATE,

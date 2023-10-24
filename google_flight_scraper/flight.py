@@ -35,8 +35,8 @@ class Airlines(LowercaseStrEnum):
 _DATE_FORMAT = r"%Y-%m-%d"
 
 
-@dataclass
-class GoogleFlightQuery:
+@dataclass(frozen=True)
+class FlightDetail:
     origin: str
     destination: str
     departure_date: str
@@ -50,13 +50,24 @@ class GoogleFlightQuery:
     def __post_init__(self):
         self._check_inputs()
 
-    def to_string(self) -> str:
+    def __repr__(self) -> str:
+        return (
+            "FlightDetail(\n"
+            f"  {self.origin} -> {self.destination}\n"
+            f"  departs: {self.departure_date}"
+            f"  returns: {self.return_date or 'One-Way Flight'}\n"
+            f"  Adults: {self.num_adults}, Children: {self.num_children}, Infants: {self.num_infants}\n"
+            f"  Cabin: {self.cabin}, Airline: {self.airline}\n"
+            ")"
+        )
+
+    def make_query(self) -> str:
         return " ".join(
             [
                 f"Flights from {self.origin}",
                 f"to {self.destination}",
                 f"on {self.departure_date}",
-                f"returning {self.return_date}" if self.return_date else "one-way",
+                f"returning {self.return_date or 'one-way'}",
                 f"for {self.num_adults} adults",
                 f"for {self.num_children} children",
                 f"for {self.num_infants} infants",
@@ -68,7 +79,7 @@ class GoogleFlightQuery:
     @property
     def url(self) -> str:
         url_base = "https://www.google.com/travel/flights"
-        return f"{url_base}?hl=en&q={self.to_string()}"
+        return f"{url_base}?hl=en&q={self.make_query()}"
 
     def _check_inputs(self):
         if len(self.origin) != 3 or len(self.destination) != 3:
