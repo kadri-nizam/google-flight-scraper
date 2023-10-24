@@ -14,6 +14,11 @@ class TravelPlan:
     destination: str
     departure_dates: list[str]
     return_dates: list[str] = field(default_factory=lambda: [""])
+    num_adults: int = 1
+    num_children: int = 0
+    num_infants: int = 0
+    cabin: str = Cabin.ECONOMY
+    airline: str = Airlines.ANY
 
 
 @dataclass
@@ -24,11 +29,6 @@ class FlightQuery:
     def from_travel_plans(
         cls,
         *travel_plans: TravelPlan,
-        num_adults=1,
-        num_children=0,
-        num_infants=0,
-        cabin=Cabin.ECONOMY,
-        airline=Airlines.ANY,
     ):
         queries = cls()
         for travel_plan in travel_plans:
@@ -36,11 +36,11 @@ class FlightQuery:
                 FlightDetail,
                 origin=travel_plan.origin,
                 destination=travel_plan.destination,
-                num_adults=num_adults,
-                num_children=num_children,
-                num_infants=num_infants,
-                cabin=cabin,
-                airline=airline,
+                num_adults=travel_plan.num_adults,
+                num_children=travel_plan.num_children,
+                num_infants=travel_plan.num_infants,
+                cabin=travel_plan.cabin,
+                airline=travel_plan.airline,
             )
 
             date_combination = itertools.product(
