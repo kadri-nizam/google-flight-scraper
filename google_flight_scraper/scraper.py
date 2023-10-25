@@ -1,6 +1,7 @@
 import datetime
 from dataclasses import dataclass, field
 from datetime import datetime as dt
+from re import split
 
 import pandas as pd
 from price_parser.parser import parse_price
@@ -33,37 +34,44 @@ class Scraper:
         cleaned = []
         for flight_text in raw_flight_details:
             nonstop = "Nonstop" in flight_text
-            split_text = flight_text.split("\n")
+            split_text = flight_text.split(r"\n")
 
             if nonstop:
                 split_text.insert(INDEX_OF_LAYOVER_DETAIL, "")
 
             if len(split_text) < TOTAL_ELEMENT_IF_FULL_DETAIL:
-                raise AttributeError(f"Flight details are incomplete. {flight_text}")
+                raise AttributeError(f"Flight details are incomplete:\n{split_text}")
 
             cleaned.append(Scraper.clean_flight_text(departure_date, *split_text))
 
         return cleaned
 
-    def _get_all_flight_elements(self, driver: WebDriver, one_way: bool) -> list[str]:
-        INDEX_OF_FLIGHT_PRICE = -1 if one_way else -2
+    def _get_all_flight_elements(self, driver: WebDriver) -> list[str]:
+        INDEX_OF_FLIGHT_PRICE = -2
 
         list_elements = driver.find_elements(By.TAG_NAME, "li")
 
-        raw_details = []
+        raw_flight_details = []
         for element in list_elements:
             text = element.text
 
             if not text or "Hide" in text:
                 continue
 
+            # One-way flights don't have "one-way" in the text on Google Flights
+            # so we'll add it back in here
+            if not "round trip" in text and not "entire trip" in text:
+                text += r"\nOne-Way"
+
             # We're only interested in list elements that have a price
-            currency = parse_price(text.split("\n")[INDEX_OF_FLIGHT_PRICE]).currency
+            currency = parse_price(text.split(r"\n")[INDEX_OF_FLIGHT_PRICE]).currency
 
             if currency:
-                raw_details.append(text + "\nOne-Way" if one_way else text)
+                raw_flight_details.append(text)
 
-        return raw_details
+            print(raw_flight_details)
+
+        return raw_flight_details
 
     def _get_flights(self, driver: WebDriver, query: FlightDetail) -> list[str]:
         driver.get(query.url)
@@ -75,7 +83,7 @@ class Scraper:
 
         self._expand_more_flights(driver)
         return self._parse(
-            self._get_all_flight_elements(driver, one_way=not query.return_date),
+            self._get_all_flight_elements(driver),
             query.departure_date,
         )
 
