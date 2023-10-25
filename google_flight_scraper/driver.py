@@ -39,14 +39,10 @@ class Driver:
     options: type[Options]
     headless: bool = True
 
-    def __init__(self, web_driver: type[WebDriver], options: type[Options]):
-        self.web_driver = web_driver
-        self.options = options
-
     def __enter__(self) -> WebDriver:
         options = self.options()
         if self.headless:
-            options.add_argument("--headless=new")
+            options.add_argument("--headless")
 
         self.driver = self.web_driver(options=options)
 
