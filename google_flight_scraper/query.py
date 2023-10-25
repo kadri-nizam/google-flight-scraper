@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from functools import partial
 from typing import Generator
 
+from typing_extensions import Self
+
 from google_flight_scraper.flight import Airlines, Cabin, FlightDetail
 
 
@@ -29,7 +31,7 @@ class FlightQuery:
     def from_travel_plans(
         cls,
         *travel_plans: TravelPlan,
-    ):
+    ) -> Self:
         queries = cls()
         for travel_plan in travel_plans:
             flight_detail = partial(

@@ -47,7 +47,7 @@ class FlightDetail:
     cabin: str = Cabin.ECONOMY
     airline: str = Airlines.ANY
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._check_inputs()
 
     def __repr__(self) -> str:
@@ -81,7 +81,7 @@ class FlightDetail:
         url_base = "https://www.google.com/travel/flights"
         return f"{url_base}?hl=en&q={self.make_query()}"
 
-    def _check_inputs(self):
+    def _check_inputs(self) -> None:
         if len(self.origin) != 3 or len(self.destination) != 3:
             raise ValueError("Both origin and destination must be IATA airport codes.")
 

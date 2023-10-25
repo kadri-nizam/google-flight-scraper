@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import datetime
 from dataclasses import dataclass, field
 from datetime import datetime as dt
-from re import split
+from typing import Any
 
 import pandas as pd
 from price_parser.parser import parse_price
@@ -20,14 +22,16 @@ class Scraper:
     timeout_seconds: int = field(default=10)
     more_flights_btn_class: str = field(init=False, default=r"bEfgkb")
 
-    def _expand_more_flights(self, driver):
+    def _expand_more_flights(self, driver: WebDriver) -> None:
         try:
             driver.find_element(By.CLASS_NAME, self.more_flights_btn_class).click()
         except NoSuchElementException:
             # No more flights to expand so just pass
             pass
 
-    def _parse(self, raw_flight_details: list[str], departure_date: str) -> list[str]:
+    def _parse(
+        self, raw_flight_details: list[str], departure_date: str
+    ) -> list[list[str]]:
         TOTAL_ELEMENT_IF_FULL_DETAIL = 10
         INDEX_OF_LAYOVER_DETAIL = 5
 
@@ -73,7 +77,7 @@ class Scraper:
 
         return raw_flight_details
 
-    def _get_flights(self, driver: WebDriver, query: FlightDetail) -> list[str]:
+    def _get_flights(self, driver: WebDriver, query: FlightDetail) -> list[list[str]]:
         driver.get(query.url)
 
         MIN_FLIGHTS_SHOWN = 5
@@ -88,7 +92,7 @@ class Scraper:
         )
 
     def __call__(self, driver: WebDriver, queries: FlightQuery) -> pd.DataFrame:
-        flights = []
+        flights: list[list[list[str]]] = []
         for query in tqdm(queries):
             try:
                 flights.append(self._get_flights(driver, query))
@@ -142,8 +146,10 @@ class Scraper:
         else:
             raise ValueError(f"Unrecognized duration: {duration}")
 
-        depart = dt.strptime(f"{departure_date} {depart}".strip(), "%Y-%m-%d %I:%M%p")
-        arrive = depart + delta
+        depart_datetime = dt.strptime(
+            f"{departure_date} {depart}".strip(), "%Y-%m-%d %I:%M%p"
+        )
+        arrive_datetime = depart_datetime + delta
 
         airline = airline.strip()
 
@@ -163,8 +169,8 @@ class Scraper:
         trip_type = trip_type.strip().title()
 
         return [
-            depart.strftime("%Y-%m-%d %H:%M"),
-            arrive.strftime("%Y-%m-%d %H:%M"),
+            depart_datetime.strftime("%Y-%m-%d %H:%M"),
+            arrive_datetime.strftime("%Y-%m-%d %H:%M"),
             origin,
             destination,
             price,
@@ -177,7 +183,7 @@ class Scraper:
         ]
 
 
-_DATAFRAME_COLUMNS = {
+_DATAFRAME_COLUMNS: dict[str, Any] = {
     "Departs": "datetime64[ns]",
     "Arrives": "datetime64[ns]",
     "Origin": "category",
