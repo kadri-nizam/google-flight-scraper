@@ -864,6 +864,20 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "price-parser"
+version = "0.3.4"
+description = "Extract price and currency from a raw string"
+optional = false
+python-versions = "*"
+files = [
+    {file = "price-parser-0.3.4.tar.gz", hash = "sha256:8a286caa40fe28912f5e596bf09d72e085f80c4b2acaf5dd22aab8298e6ba731"},
+    {file = "price_parser-0.3.4-py2.py3-none-any.whl", hash = "sha256:99c89bd5b3e40ae0826dd1bec8392a82edab49d05b5add80d545c82fc8bd1633"},
+]
+
+[package.dependencies]
+attrs = ">=17.3.0"
+
+[[package]]
 name = "prompt-toolkit"
 version = "3.0.39"
 description = "Library for building powerful interactive command lines in Python"
@@ -1467,4 +1481,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "ed08fa479f562040b4bf975ea66f9b521021d8cdc3cc5b56107b8dbbca4544c8"
+content-hash = "b59a4ecf77ddec472ca52d97d4082412db9a36841e23004cfc74b1b3c83fcfa4"
