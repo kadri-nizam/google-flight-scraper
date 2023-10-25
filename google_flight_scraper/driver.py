@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from types import TracebackType
 from typing import Any, Protocol
+
+from selenium.webdriver.remote.webelement import WebElement
 
 
 class Options(Protocol):
@@ -22,7 +23,10 @@ class WebDriver(Protocol):
     def get(self, url: str) -> None:
         ...
 
-    def find_element(self, by: str, value: str) -> Any:
+    def find_element(self, by: str, value: str) -> WebElement:
+        ...
+
+    def find_elements(self, by: str, value: str) -> list[WebElement]:
         ...
 
     def quit(self) -> None:
@@ -33,6 +37,7 @@ class WebDriver(Protocol):
 class Driver:
     web_driver: type[WebDriver]
     options: type[Options]
+    headless: bool = True
 
     def __init__(self, web_driver: type[WebDriver], options: type[Options]):
         self.web_driver = web_driver
@@ -40,7 +45,9 @@ class Driver:
 
     def __enter__(self) -> WebDriver:
         options = self.options()
-        options.add_argument("--headless")
+        if self.headless:
+            options.add_argument("--headless=new")
+
         self.driver = self.web_driver(options=options)
 
         return self.driver
