@@ -67,10 +67,10 @@ class FlightDetail:
                 f"Flights from {self.origin}",
                 f"to {self.destination}",
                 f"on {self.departure_date}",
-                f"returning {self.return_date or 'one-way'}",
-                f"for {self.num_adults} adults",
-                f"for {self.num_children} children",
-                f"for {self.num_infants} infants",
+                f"returning {self.return_date}" if self.return_date else "one-way",
+                f"{self.num_adults} adult" if self.num_adults else "",
+                f"{self.num_children} children" if self.num_children else "",
+                f"{self.num_infants} infant" if self.num_infants else "",
                 f"on {self.cabin} class",
                 f"with {self.airline} airline",
             ]
@@ -101,3 +101,9 @@ class FlightDetail:
 
             if return_date < departure_date:
                 raise ValueError("Return date is before departure date.")
+
+        if self.num_adults + self.num_children + self.num_infants <= 0:
+            raise ValueError("At least one passenger is required.")
+
+        if self.num_adults < 0 and self.num_infants > 0:
+            raise ValueError("At least one adult is required for lap-seated infants.")
