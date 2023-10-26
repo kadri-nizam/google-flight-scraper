@@ -38,7 +38,7 @@ class Scraper:
         cleaned = []
         for flight_text in raw_flight_details:
             nonstop = "Nonstop" in flight_text
-            split_text = flight_text.split(r"\n")
+            split_text = flight_text.split("\n")
 
             if nonstop:
                 split_text.insert(INDEX_OF_LAYOVER_DETAIL, "")
@@ -65,15 +65,13 @@ class Scraper:
             # One-way flights don't have "one-way" in the text on Google Flights
             # so we'll add it back in here
             if not "round trip" in text and not "entire trip" in text:
-                text += r"\nOne-Way"
+                text += "\nOne-Way"
 
             # We're only interested in list elements that have a price
-            currency = parse_price(text.split(r"\n")[INDEX_OF_FLIGHT_PRICE]).currency
+            currency = parse_price(text.split("\n")[INDEX_OF_FLIGHT_PRICE]).currency
 
             if currency:
                 raw_flight_details.append(text)
-
-            print(raw_flight_details)
 
         return raw_flight_details
 

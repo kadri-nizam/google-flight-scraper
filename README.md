@@ -45,19 +45,19 @@ FlightQuery.from_travel_plans(
     TravelPlan(
         "SFO",
         "SEA",
-        departure_dates=["2023-12-{d}" for d in range(1, 10)],
-        return_dates=["2023-12-{d}" for d in range(11, 20)],
+        departure_dates=[f"2023-12-{d}" for d in range(1, 10)],
+        return_dates=[f"2023-12-{d}" for d in range(11, 20)],
     ),
     # Searches to-and-fro one-way tickets on Google Flights
     TravelPlan(
         "SFO",
         "SEA",
-        departure_dates=["2023-12-{d}" for d in range(1, 10)],
+        departure_dates=[f"2023-12-{d}" for d in range(1, 10)],
     ),
     TravelPlan(
         "SEA",
         "SFO",
-        departure_dates=["2023-12-{d}" for d in range(11, 20)],
+        departure_dates=[f"2023-12-{d}" for d in range(11, 20)],
     ),
 )
 ```

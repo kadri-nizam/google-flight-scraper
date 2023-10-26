@@ -16,9 +16,9 @@ def mock_driver_one_way(mocker):
     mocked_web_element.configure_mock(
         **{
             "text": (
-                r"12:10 PM – 1:15 PM\nDelta\n"
-                r"2 hr 21 min\nSFO–SEA\nNonstop\n122 kg CO2\n"
-                r"+20% emissions\n$74"
+                "12:10 PM – 1:15 PM\nDelta\n"
+                "2 hr 21 min\nSFO–SEA\nNonstop\n122 kg CO2\n"
+                "+20% emissions\n$74"
             )
         }
     )
@@ -47,9 +47,9 @@ def mock_driver_return_trip(mocker):
     mocked_web_element.configure_mock(
         **{
             "text": (
-                r"12:10 PM – 1:15 PM\nDelta\n"
-                r"2 hr 21 min\nSFO–SEA\nNonstop\n122 kg CO2\n"
-                r"+20% emissions\n$74\nround trip"
+                "12:10 PM – 1:15 PM\nDelta\n"
+                "2 hr 21 min\nSFO–SEA\nNonstop\n122 kg CO2\n"
+                "+20% emissions\n$74\nround trip"
             )
         }
     )
