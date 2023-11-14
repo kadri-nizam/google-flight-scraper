@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from typing import Any
@@ -132,23 +133,18 @@ class Scraper:
         # Discard emission info if present
         *_, price, trip_type = leftover
 
-        depart, _ = depart_and_arrive_time.encode("ascii", "ignore").decode().split()
-        split_duration = [int(x) for x in duration.split() if x.isdigit()]
+        depart, *_ = unicodedata.normalize("NFKD", depart_and_arrive_time).split(" – ")
 
-        if len(split_duration) == 2:
-            hr, min = split_duration
-            delta = datetime.timedelta(hours=hr, minutes=min)
-        elif "hr" in duration:
-            (hr,) = split_duration
-            delta = datetime.timedelta(hours=hr)
-        elif "min" in duration:
-            (min,) = split_duration
-            delta = datetime.timedelta(minutes=min)
-        else:
-            raise ValueError(f"Unrecognized duration: {duration}")
+        if not "hr" in duration:
+            duration = f"0 hr {duration.strip()}"
+        elif not "min" in duration:
+            duration = f"{duration.strip()} 0 min"
+
+        hr, min = [int(x) for x in duration.split(" ") if x.isdigit()]
+        delta = datetime.timedelta(hours=hr, minutes=min)
 
         depart_datetime = dt.strptime(
-            f"{departure_date} {depart}".strip(), "%Y-%m-%d %I:%M%p"
+            f"{departure_date} {depart}".strip(), "%Y-%m-%d %I:%M %p"
         )
         arrive_datetime = depart_datetime + delta
 
