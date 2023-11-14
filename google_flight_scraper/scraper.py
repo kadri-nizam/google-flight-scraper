@@ -93,10 +93,10 @@ class Scraper:
         )
 
     def __call__(self, driver: WebDriver, queries: FlightQuery) -> pd.DataFrame:
-        flights: list[list[list[str]]] = []
+        flight_lists: list[list[list[str]]] = []
         for query in tqdm(queries):
             try:
-                flights.append(self._get_flights(driver, query))
+                flight_lists.append(self._get_flights(driver, query))
             except TimeoutException:
                 print(
                     f"Timeout for query:\n\n{query}\n\n"
@@ -107,7 +107,7 @@ class Scraper:
 
         # flatten the list of lists to render into a dataframe
         df = pd.DataFrame(
-            [flight for dates in flights for flight in dates],
+            [flights for dates in flight_lists for flights in dates],
             columns=list(_DATAFRAME_COLUMNS.keys()),
         )
 
