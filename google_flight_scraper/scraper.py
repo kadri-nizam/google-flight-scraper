@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-import unicodedata
+import re
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 from typing import Any
@@ -21,6 +21,12 @@ from tqdm import tqdm
 from google_flight_scraper.driver import WebDriver
 from google_flight_scraper.flight import FlightDetail
 from google_flight_scraper.query import FlightQuery
+
+_24HR_ITINERARY_REGEX = re.compile(r"(\d{2}:\d{2}) . (\d{2}:\d{2})(\+\d+)?")
+
+_12HR_ITINERARY_REGEX = re.compile(
+    r"(\d{1,2}:\d{2}.?[AaPp][Mm]) . (\d{1,2}:\d{2}.?[AaPp][Mm])(\+\d+)?"
+)
 
 
 @dataclass
@@ -126,8 +132,6 @@ class Scraper:
         for columns in df.columns:
             df[columns] = df[columns].astype(_DATAFRAME_COLUMNS[columns])
 
-        df["Duration"] = df["Arrives"] - df["Departs"]
-
         return df
 
     @staticmethod
@@ -144,7 +148,29 @@ class Scraper:
         # Discard emission info if present
         *_, price, trip_type = leftover
 
-        depart, *_ = unicodedata.normalize("NFKD", depart_and_arrive_time).split(" – ")
+        if matches := _24HR_ITINERARY_REGEX.match(depart_and_arrive_time):
+            date_strptime = "%Y-%m-%d %H:%M"
+        elif matches := _12HR_ITINERARY_REGEX.match(depart_and_arrive_time):
+            date_strptime = "%Y-%m-%d %I:%M%p"
+        else:
+            raise ValueError(
+                f"Could not parse departure and arrival times from {depart_and_arrive_time}"
+            )
+
+        (depart, arrive, days_changed) = matches.groups()
+        depart = depart.encode("ascii", "ignore").decode()
+        arrive = arrive.encode("ascii", "ignore").decode()
+
+        depart_datetime = dt.strptime(
+            f"{departure_date} {depart.strip()}".strip(), date_strptime
+        )
+
+        arrive_date = depart_datetime.date() + datetime.timedelta(
+            days=int(days_changed or 0)
+        )
+        arrive_datetime = dt.strptime(
+            f"{arrive_date} {arrive.strip()}".strip(), date_strptime
+        )
 
         if not "hr" in duration:
             duration = f"0 hr {duration.strip()}"
@@ -152,12 +178,7 @@ class Scraper:
             duration = f"{duration.strip()} 0 min"
 
         hr, min = [int(x) for x in duration.split(" ") if x.isdigit()]
-        delta = datetime.timedelta(hours=hr, minutes=min)
-
-        depart_datetime = dt.strptime(
-            f"{departure_date} {depart}".strip(), "%Y-%m-%d %I:%M %p"
-        )
-        arrive_datetime = depart_datetime + delta
+        travel_time = datetime.timedelta(hours=hr, minutes=min)
 
         airline = airline.strip()
 
@@ -179,6 +200,7 @@ class Scraper:
             arrive_datetime.strftime("%Y-%m-%d %H:%M"),
             origin,
             destination,
+            str(travel_time),
             price,
             airline,
             num_stops,
@@ -192,6 +214,7 @@ _DATAFRAME_COLUMNS: dict[str, Any] = {
     "Arrives": "datetime64[ns]",
     "Origin": "category",
     "Destination": "category",
+    "Duration": "timedelta64[ns]",
     "Price": float,
     "Airline": "category",
     "Num_Stops": int,
