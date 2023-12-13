@@ -8,7 +8,11 @@ from typing import Any
 
 import pandas as pd
 from price_parser.parser import parse_price
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
@@ -61,8 +65,13 @@ class Scraper:
         INDEX_OF_FLIGHT_PRICE = -2
 
         # Get all text elements to avoid stale requests
-        list_elements = driver.find_elements(By.XPATH, self.flight_info_xpath)
-        texts = [element.text for element in list_elements]
+        texts = []
+        while not texts:
+            list_elements = driver.find_elements(By.XPATH, self.flight_info_xpath)
+            try:
+                texts = [element.text for element in list_elements]
+            except StaleElementReferenceException:
+                pass
 
         raw_flight_details = []
         for text in texts:
@@ -92,7 +101,9 @@ class Scraper:
             query.departure_date,
         )
 
-    def __call__(self, driver: WebDriver, queries: FlightQuery) -> pd.DataFrame:
+    def __call__(
+        self, driver: WebDriver, queries: FlightQuery | tuple[FlightDetail, ...]
+    ) -> pd.DataFrame:
         flight_lists: list[list[list[str]]] = []
         for query in tqdm(queries):
             try:
