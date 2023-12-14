@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "google-flight-scraper"
-version = "0.1.0"
+version = "0.2.0"
 description = "A library to scrape and analyze Google Flight data"
 authors = ["Kadri <knizam@psu.edu>"]
 license = "MIT"
