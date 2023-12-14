@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-12-13
+
+### Added
+- Retry on StaleException
+- More scraping test especially parsing 12 hour vs 24 hour
+
+### Changed
+- URL query is made to be more stable by removing unneeded data
+- Rename variable to make code clearer
+- Switch to using regex to get departure and arrival date
+- Switch to provided flight duration as simply subtracting negates timezone shifts
+
+
 ## [0.1.0] - 2023-10-23
 
 ### Added

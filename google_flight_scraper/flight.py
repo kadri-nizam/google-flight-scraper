@@ -62,19 +62,28 @@ class FlightDetail:
         )
 
     def make_query(self) -> str:
-        return " ".join(
-            [
-                f"Flights from {self.origin}",
-                f"to {self.destination}",
-                f"on {self.departure_date}",
-                f"returning {self.return_date}" if self.return_date else "one-way",
-                f"{self.num_adults} adult" if self.num_adults else "",
-                f"{self.num_children} children" if self.num_children else "",
-                f"{self.num_infants} infant" if self.num_infants else "",
-                f"on {self.cabin} class",
-                f"with {self.airline} airline",
-            ]
-        )
+        query = [
+            f"Flights from {self.origin}",
+            f"to {self.destination}",
+            f"on {self.departure_date}",
+            f"returning {self.return_date}" if self.return_date else "one-way",
+        ]
+
+        if self.num_adults:
+            query.append(f"{self.num_adults} adults")
+
+        if self.num_children:
+            query.append(f"{self.num_children} children")
+
+        if self.num_infants:
+            query.append(f"and {self.num_infants} infants")
+
+        query.append(f"{self.cabin} class")
+
+        if self.airline != Airlines.ANY:
+            query.append(f"{self.airline} airline")
+
+        return " ".join(query)
 
     @property
     def url(self) -> str:
