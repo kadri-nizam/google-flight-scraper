@@ -1,5 +1,5 @@
 # google-flight-scraper
-A library to scrape and analyze Google Flight data
+A library to scrape and analyze Google Flight data. I built this project for my own educational purposes.
 
 # Installing
 Clone the repository into your local drive. This project was developed with [Poetry](https://python-poetry.org/) as the dependency manager. Simply run `poetry install` in the cloned directory to install the required dependencies.
